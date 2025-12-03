@@ -66,7 +66,7 @@ public class ConsoleUI implements UserInterface {
         try {
             System.out.print("Podaj nazwę klienta: ");
             String name = scanner.nextLine();
-            if (name == null) name = "Gość";
+            if (name == null || name.isEmpty()) name = "Gość";
             Customer customer = new Customer(name, 100);
 
             pizzeria.showMenuItems();
@@ -85,22 +85,13 @@ public class ConsoleUI implements UserInterface {
                 }
             }
 
-
             Order order = pizzeria.createOrder(customer, ids);
 
             pizzeria.showTables();
             System.out.print("Wybierz numer stolika (wciśnij Enter, aby przypisać pierwszy wolny): ");
             String tableInput = scanner.nextLine();
-            if (tableInput.isEmpty()) {
-                try {
-                    int tableNumber = Integer.parseInt(tableInput);
-                    pizzeria.assignTableToOrder(order, tableNumber);
-                } catch (NumberFormatException nfe) {
-                    System.out.println("Nieprawidłowy numer stolika. Zamówienie będzie bez stolika.");
-                } catch (InvalidOrderException ioe) {
-                    System.out.println("Nie można przypisać stolika: " + ioe.getMessage());
-                }
-            } else {
+
+            if (tableInput == null || tableInput.isEmpty()) {
                 int free = pizzeria.findFirstFreeTableNumber();
                 if (free > 0) {
                     try {
@@ -111,6 +102,17 @@ public class ConsoleUI implements UserInterface {
                     }
                 } else {
                     System.out.println("Brak wolnych stolików. Zamówienie będzie bez stolika.");
+                }
+            } else {
+                try {
+                    int tableNumber = Integer.parseInt(tableInput);
+                    try {
+                        pizzeria.assignTableToOrder(order, tableNumber);
+                    } catch (InvalidOrderException ioe) {
+                        System.out.println("Nie można przypisać stolika: " + ioe.getMessage());
+                    }
+                } catch (NumberFormatException nfe) {
+                    System.out.println("Nieprawidłowy numer stolika. Zamówienie będzie bez stolika.");
                 }
             }
 
